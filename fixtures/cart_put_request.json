@@ -1,0 +1,19 @@
+{
+  "required_line_keys": [
+    "product_id",
+    "quantity"
+  ],
+  "forbidden_keys": [
+    "item_id",
+    "amount",
+    "currency"
+  ],
+  "example": {
+    "lines": [
+      {
+        "product_id": "10381",
+        "quantity": 1
+      }
+    ]
+  }
+}

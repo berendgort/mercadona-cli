@@ -1,0 +1,187 @@
+{
+  "id": "fixture-cart",
+  "version": 1,
+  "products_count": 12,
+  "lines": [
+    {
+      "id": "1",
+      "product_id": "10381",
+      "quantity": 1,
+      "version": 1,
+      "product": {
+        "id": "10381",
+        "slug": "leche-semidesnatada-hacendado-pack-6",
+        "display_name": "Leche semidesnatada Hacendado",
+        "share_url": "https://tienda.mercadona.es/product/10381/leche-semidesnatada-hacendado-pack-6",
+        "price_instructions": {
+          "unit_price": "4.98"
+        }
+      }
+    },
+    {
+      "id": "2",
+      "product_id": "10379",
+      "quantity": 1,
+      "version": 1,
+      "product": {
+        "id": "10379",
+        "slug": "leche-entera-hacendado-pack-6",
+        "display_name": "Leche entera Hacendado",
+        "share_url": "https://tienda.mercadona.es/product/10379/leche-entera-hacendado-pack-6",
+        "price_instructions": {
+          "unit_price": "5.76"
+        }
+      }
+    },
+    {
+      "id": "3",
+      "product_id": "10383",
+      "quantity": 1,
+      "version": 1,
+      "product": {
+        "id": "10383",
+        "slug": "leche-desnatada-hacendado-pack-6",
+        "display_name": "Leche desnatada Hacendado",
+        "share_url": "https://tienda.mercadona.es/product/10383/leche-desnatada-hacendado-pack-6",
+        "price_instructions": {
+          "unit_price": "4.86"
+        }
+      }
+    },
+    {
+      "id": "4",
+      "product_id": "10721",
+      "quantity": 1,
+      "version": 1,
+      "product": {
+        "id": "10721",
+        "slug": "leche-semidesnatada-sin-lactosa-hacendado-pack-6",
+        "display_name": "Leche semidesnatada sin lactosa Hacendado",
+        "share_url": "https://tienda.mercadona.es/product/10721/leche-semidesnatada-sin-lactosa-hacendado-pack-6",
+        "price_instructions": {
+          "unit_price": "5.64"
+        }
+      }
+    },
+    {
+      "id": "5",
+      "product_id": "10730",
+      "quantity": 1,
+      "version": 1,
+      "product": {
+        "id": "10730",
+        "slug": "leche-desnatada-sin-lactosa-hacendado-pack-6",
+        "display_name": "Leche desnatada sin lactosa Hacendado",
+        "share_url": "https://tienda.mercadona.es/product/10730/leche-desnatada-sin-lactosa-hacendado-pack-6",
+        "price_instructions": {
+          "unit_price": "5.46"
+        }
+      }
+    },
+    {
+      "id": "6",
+      "product_id": "10530",
+      "quantity": 1,
+      "version": 1,
+      "product": {
+        "id": "10530",
+        "slug": "leche-entera-asturiana-pack-6",
+        "display_name": "Leche entera Asturiana",
+        "share_url": "https://tienda.mercadona.es/product/10530/leche-entera-asturiana-pack-6",
+        "price_instructions": {
+          "unit_price": "7.74"
+        }
+      }
+    },
+    {
+      "id": "7",
+      "product_id": "10531",
+      "quantity": 1,
+      "version": 1,
+      "product": {
+        "id": "10531",
+        "slug": "leche-semidesnatada-asturiana-pack-6",
+        "display_name": "Leche semidesnatada Asturiana",
+        "share_url": "https://tienda.mercadona.es/product/10531/leche-semidesnatada-asturiana-pack-6",
+        "price_instructions": {
+          "unit_price": "7.02"
+        }
+      }
+    },
+    {
+      "id": "8",
+      "product_id": "10683",
+      "quantity": 1,
+      "version": 1,
+      "product": {
+        "id": "10683",
+        "slug": "leche-semidesnatada-calcio-hacendado-pack-6",
+        "display_name": "Leche semidesnatada calcio Hacendado",
+        "share_url": "https://tienda.mercadona.es/product/10683/leche-semidesnatada-calcio-hacendado-pack-6",
+        "price_instructions": {
+          "unit_price": "6.30"
+        }
+      }
+    },
+    {
+      "id": "9",
+      "product_id": "10698",
+      "quantity": 1,
+      "version": 1,
+      "product": {
+        "id": "10698",
+        "slug": "leche-entera-sin-lactosa-hacendado-pack-6",
+        "display_name": "Leche entera sin lactosa Hacendado",
+        "share_url": "https://tienda.mercadona.es/product/10698/leche-entera-sin-lactosa-hacendado-pack-6",
+        "price_instructions": {
+          "unit_price": "6.18"
+        }
+      }
+    },
+    {
+      "id": "10",
+      "product_id": "15599",
+      "quantity": 1,
+      "version": 1,
+      "product": {
+        "id": "15599",
+        "slug": "leche-evaporada-hacendado-pack-3",
+        "display_name": "Leche evaporada Hacendado",
+        "share_url": "https://tienda.mercadona.es/product/15599/leche-evaporada-hacendado-pack-3",
+        "price_instructions": {
+          "unit_price": "1.66"
+        }
+      }
+    },
+    {
+      "id": "11",
+      "product_id": "10686",
+      "quantity": 1,
+      "version": 1,
+      "product": {
+        "id": "10686",
+        "slug": "leche-desnatada-calcio-hacendado-pack-6",
+        "display_name": "Leche desnatada calcio Hacendado",
+        "share_url": "https://tienda.mercadona.es/product/10686/leche-desnatada-calcio-hacendado-pack-6",
+        "price_instructions": {
+          "unit_price": "6.12"
+        }
+      }
+    },
+    {
+      "id": "12",
+      "product_id": "60348",
+      "quantity": 1,
+      "version": 1,
+      "product": {
+        "id": "60348",
+        "slug": "leche-condensada-hacendado-bote",
+        "display_name": "Leche condensada Hacendado",
+        "share_url": "https://tienda.mercadona.es/product/60348/leche-condensada-hacendado-bote",
+        "price_instructions": {
+          "unit_price": "3.35"
+        }
+      }
+    }
+  ]
+}

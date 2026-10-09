@@ -1,0 +1,76 @@
+[project]
+name = "mercadona-cli"
+version = "0.1.0"
+description = "Mercadona cart CLI. Search, basket, delivery window. The human pays."
+authors = [{ name = "Dr. Berend Gort", email = "berend.gort@gmail.com" }]
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+keywords = ["mercadona", "cli", "mcp", "grocery", "spain"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+dependencies = [
+    "curl-cffi>=0.7.0",
+    "pydantic>=2.10.0",
+    "rich>=13.8.0",
+    "typer>=0.15.1",
+]
+
+[project.optional-dependencies]
+mcp = [
+    "fastmcp>=3.2",
+    "mcp>=1.2.0",
+]
+dev = [
+    "mypy>=1.14.0",
+    "pytest>=8.3.4",
+    "ruff>=0.8.4",
+]
+all = [
+    "mercadona-cli[mcp,dev]",
+]
+
+[project.scripts]
+merca = "merca.cli.main:cli"
+merca-mcp = "merca.mcp._entry:run"
+
+[project.urls]
+Homepage = "https://github.com/berendgort/mercadona-cli"
+Repository = "https://github.com/berendgort/mercadona-cli"
+Issues = "https://github.com/berendgort/mercadona-cli/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["merca"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+"merca/cli/*.py" = ["B008"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+packages = ["merca"]
+exclude = ["tests/"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["live: hits live Mercadona (opt-in)"]

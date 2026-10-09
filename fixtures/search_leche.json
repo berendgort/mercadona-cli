@@ -1,0 +1,26 @@
+{
+  "query": "leche",
+  "hits": [
+    {
+      "id": "10381",
+      "slug": "leche-semidesnatada-hacendado-pack-6",
+      "brand": "Hacendado",
+      "display_name": "Leche semidesnatada Hacendado",
+      "share_url": "https://tienda.mercadona.es/product/10381/leche-semidesnatada-hacendado-pack-6",
+      "price_instructions": {
+        "unit_price": "4.98"
+      }
+    },
+    {
+      "id": "10379",
+      "slug": "leche-entera-hacendado-pack-6",
+      "brand": "Hacendado",
+      "display_name": "Leche entera Hacendado",
+      "share_url": "https://tienda.mercadona.es/product/10379/leche-entera-hacendado-pack-6",
+      "price_instructions": {
+        "unit_price": "5.76"
+      }
+    }
+  ],
+  "nbHits": 2
+}
