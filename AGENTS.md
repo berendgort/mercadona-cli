@@ -19,3 +19,7 @@ pytest -q -m "not live"
 ```
 
 Recipe for callers: `merca instruct --json`.
+
+## Playbook
+
+- [`docs/cli_playbook.md`](docs/cli_playbook.md) — how this stack was built; rate limits and stop rules
