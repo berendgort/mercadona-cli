@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 from pathlib import Path
 
 from merca.core.paths import merca_home, profile_path, session_path
@@ -30,12 +31,23 @@ def load_profile() -> Profile | None:
     return Profile.model_validate_json(path.read_text(encoding="utf-8"))
 
 
+def _atomic_write(path: Path, text: str) -> None:
+    """Write via a unique 0600 temp file, then replace the destination."""
+    fd, name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    tmp = Path(name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(text)
+        os.replace(tmp, path)
+    except Exception:
+        tmp.unlink(missing_ok=True)
+        raise
+
+
 def save_profile(profile: Profile) -> None:
     _ensure_home()
-    profile_path().write_text(
-        json.dumps(profile.model_dump(mode="json"), indent=2) + "\n",
-        encoding="utf-8",
-    )
+    text = json.dumps(profile.model_dump(mode="json"), indent=2) + "\n"
+    _atomic_write(profile_path(), text)
 
 
 def load_session() -> Session | None:
@@ -45,20 +57,7 @@ def load_session() -> Session | None:
     return Session.model_validate_json(path.read_text(encoding="utf-8"))
 
 
-def _write_private(path: Path, text: str) -> None:
-    """Create the file at mode 0600. A later chmod would leave a window."""
-    tmp = path.with_name(path.name + ".tmp")
-    if tmp.exists():
-        tmp.unlink()
-    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-    try:
-        os.write(fd, text.encode("utf-8"))
-    finally:
-        os.close(fd)
-    os.replace(tmp, path)
-
-
 def save_session(session: Session) -> None:
     _ensure_home()
     payload = json.dumps({"token": session.token, "uuid": session.uuid}, indent=2) + "\n"
-    _write_private(session_path(), payload)
+    _atomic_write(session_path(), payload)

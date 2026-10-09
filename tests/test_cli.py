@@ -55,6 +55,7 @@ def test_setup_login_does_not_echo_the_token(tmp_path: Path) -> None:
     assert payload["ok"] is True
     mode = (tmp_path / "session.json").stat().st_mode
     assert stat.S_IMODE(mode) == 0o600
+    assert list(tmp_path.glob(".session.json.*")) == []
     doctor = _json(_run(tmp_path, "doctor", "--json"))
     assert isinstance(doctor["data"], dict)
     assert doctor["data"]["session_mode_ok"] is True
