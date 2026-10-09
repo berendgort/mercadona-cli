@@ -11,8 +11,8 @@ __all__ = (
     "parse_slot_time_range",
 )
 
-DELIVERY_WINDOW_MIN = "10:59"
-DELIVERY_WINDOW_MAX = "18:01"
+DELIVERY_WINDOW_MIN = "11:00"
+DELIVERY_WINDOW_MAX = "18:00"
 
 _DAYS = {
     "LUN": "LUN",

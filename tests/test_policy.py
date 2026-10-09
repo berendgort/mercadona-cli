@@ -22,11 +22,18 @@ def test_monday_midday_is_allowed() -> None:
     assert ok, errors
 
 
+def test_exact_window_edges_are_allowed() -> None:
+    ok, errors = check_delivery_slot("MAR", "De 11:00 a 18:00")
+    assert ok, errors
+
+
 def test_friday_and_late_slots_fail() -> None:
     assert check_delivery_slot("VIE", "De 11:00 a 13:00")[0] is False
     assert check_delivery_slot("viernes", "De 11:00 a 13:00")[0] is False
     assert check_delivery_slot("LUN", "De 18:00 a 20:00")[0] is False
     assert check_delivery_slot("LUN", "De 07:00 a 09:00")[0] is False
+    assert check_delivery_slot("LUN", "De 10:59 a 13:00")[0] is False
+    assert check_delivery_slot("LUN", "De 16:00 a 18:01")[0] is False
     assert check_delivery_slot("JUE", "De 11:00 a 13:00")[0] is False
 
 
