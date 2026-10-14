@@ -13,7 +13,7 @@ from merca.basket.parse import parse_cart
 from merca.cli.catch import run_cmd
 from merca.core.access import require_profile, require_session
 from merca.core.exceptions import MercaValidationError
-from merca.core.store import load_profile
+from merca.core.store import load_profile, load_session
 from merca.models.profile import Profile
 from merca.policy.checkout import checkout_plan
 from merca.policy.preflight import run_preflight
@@ -71,8 +71,15 @@ def _checkout(
     json_out: bool = typer.Option(False, "--json"),
 ) -> None:
     def _run() -> dict[str, Any]:
-        cart = _load_fixture(fixture) if fixture else None
-        return checkout_plan(day, label, cart=cart, profile=load_profile())
+        profile = load_profile()
+        if fixture:
+            cart = _load_fixture(fixture)
+        else:
+            session = load_session()
+            cart = None
+            if session is not None and profile is not None and profile.warehouse:
+                cart = fetch_cart(session, profile.warehouse)
+        return checkout_plan(day, label, cart=cart, profile=profile)
 
     run_cmd(_run, as_json=json_out)
 

@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict
 from merca.models.cart import Cart
 from merca.models.profile import Profile
 
-__all__ = ("Preflight", "run_preflight")
+__all__ = ("Preflight", "line_spend", "run_preflight")
 
 
 class Preflight(BaseModel):
@@ -19,10 +19,14 @@ class Preflight(BaseModel):
     spend: float
 
 
+def line_spend(cart: Cart) -> float:
+    """Sum of line prices. The only spend figure."""
+    return round(sum(line.unit_price * line.quantity for line in cart.lines), 2)
+
+
 def run_preflight(cart: Cart, profile: Profile) -> Preflight:
     errors: list[str] = []
     seen: set[str] = set()
-    spend = 0.0
     banned = set(profile.blacklist)
     allowed = set(profile.whitelist)
     for line in cart.lines:
@@ -37,7 +41,7 @@ def run_preflight(cart: Cart, profile: Profile) -> Preflight:
             errors.append(
                 f"Quantity {line.quantity} for {line.product_id} is outside 1..{profile.qty_max}"
             )
-        spend += line.unit_price * line.quantity
+    spend = line_spend(cart)
     count = len(cart.lines)
     if count < profile.item_min or count > profile.item_max:
         errors.append(

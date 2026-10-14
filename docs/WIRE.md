@@ -36,6 +36,18 @@ Needs `Authorization: Bearer <MO-user.token>` and the customer uuid from the sam
 
 `fixtures/cart_ok.json` is a cart object in the GET shape, filled with public search hits so preflight tests have a real price list. It is not an order.
 
+## Orders
+
+`GET https://tienda.mercadona.es/api/customers/{uuid}/orders/?lang=es&wh={warehouse}`
+
+The CLI keeps `id`, `status_ui`, `start_date`, `end_date`, `products_count`, and `summary.products` / `summary.total`. Address, phone, and payment method are dropped. Fixture: `fixtures/orders_page.json` (synthetic, no account).
+
+## Receipt
+
+`GET https://tienda.mercadona.es/api/customers/{uuid}/orders/{id}/receipt/?lang=es&wh={warehouse}`
+
+Header `Accept: application/pdf`. A PDF body starts with `%PDF`. 404 is `not_found`. The CLI writes the file and returns the path and byte count. It does not print the PDF.
+
 ## Not called
 
-Order confirmation, payment, Bizum, and postal-code change are not implemented. Checkout stops in process.
+Order confirmation, payment, Bizum, and postal-code change are not implemented. Checkout stops in process. Checkout may GET the cart so preflight can run. It does not POST an order.

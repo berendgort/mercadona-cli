@@ -62,15 +62,42 @@ def _setup(
 
 
 def _login(
-    token: str = typer.Option(..., "--token"),
-    uuid: str = typer.Option(..., "--uuid"),
+    token: str = typer.Option(
+        ...,
+        "--token",
+        help="MO-user.token from Local Storage (not Cookies).",
+    ),
+    uuid: str = typer.Option(
+        ...,
+        "--uuid",
+        help="MO-user.uuid from Local Storage (not Cookies).",
+    ),
     json_out: bool = typer.Option(False, "--json"),
 ) -> None:
+    """Save session from Local Storage key MO-user.
+
+    Path: tienda.mercadona.es (logged in) → F12 → Application → Local Storage
+    → https://tienda.mercadona.es → click MO-user → copy token and uuid.
+
+    Do not use the Cookies panel (__mo_da, _abck, bm_sz, …). Never pass a password.
+    """
+
     def _run() -> dict[str, Any]:
-        if not token.strip() or not uuid.strip():
+        tok = token.strip()
+        uid = uuid.strip()
+        if not tok or not uid:
             raise MercaValidationError("token and uuid are required")
-        save_session(Session(token=token.strip(), uuid=uuid.strip()))
-        return {"saved": True, "uuid": uuid.strip()}
+        if tok.startswith("<") or uid.startswith("<") or "token" == tok.lower():
+            raise MercaValidationError(
+                "placeholder token rejected. Paste real MO-user.token and MO-user.uuid "
+                "from Local Storage (not Cookies)"
+            )
+        if len(tok) < 20:
+            raise MercaValidationError(
+                "token looks too short. Open Local Storage, key MO-user, not Cookies"
+            )
+        save_session(Session(token=tok, uuid=uid))
+        return {"saved": True, "uuid": uid}
 
     run_cmd(_run, as_json=json_out)
 

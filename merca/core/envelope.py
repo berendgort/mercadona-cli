@@ -16,8 +16,11 @@ __all__ = (
 API_VERSION = 1
 
 _LOGIN = (
-    "merca login --token <MO-user.token> --uuid <MO-user.uuid> --json. "
-    "Copy both from the tienda site local storage. Never paste a password."
+    "Need Local Storage key MO-user (not Cookies). "
+    "Logged in at tienda.mercadona.es → F12 → Application → Local Storage → "
+    "https://tienda.mercadona.es → click MO-user → copy token and uuid fields. "
+    "Ignore Cookies (__mo_da, _abck, bm_sz, …). Never use a password. "
+    "Then in your own terminal: merca login --token '<token>' --uuid '<uuid>' --json"
 )
 
 
