@@ -12,7 +12,8 @@ def instruct_recipe() -> dict[str, Any]:
         "name": "merca",
         "objective": "Put the right products in the Mercadona cart. The human pays in the app.",
         "never": [
-            "confirm an order",
+            "confirm a new order",
+            "cancel or delete an order",
             "pay",
             "print the session token",
             "send a password",
@@ -47,6 +48,9 @@ def instruct_recipe() -> dict[str, Any]:
             "merca product <id> --json",
             "merca orders --limit 8 --json",
             "merca receipt <order_id> --out ticket.pdf --json",
+            "merca order show <order_id> --json",
+            "merca order edit <order_id> --file lines.txt --json  # dry run",
+            "merca order edit <order_id> --file lines.txt --yes --json",
             "merca cart --json",
             "merca cart add <id> --qty 1 --yes --json",
             "merca cart fill --file lines.txt --yes --json",
@@ -54,7 +58,12 @@ def instruct_recipe() -> dict[str, Any]:
             "merca preflight --json",
             "merca checkout --day LUN --label 'De 11:00 a 13:00' --json",
         ],
-        "writes": "cart add and cart remove do nothing unless --yes is present.",
+        "writes": "cart add, cart remove, and order edit do nothing unless --yes is present.",
+        "order_edit": (
+            "Changes quantities on lines of a confirmed order before changes_until. "
+            "File rows are 'product_id qty'; 0 removes. Unlisted lines stay. "
+            "Adding new products and removing every line are refused. No pay."
+        ),
         "ambiguous": "search returns error_type ambiguous and candidates. Pick an id.",
         "auth": (
             "error_type auth includes human_fix. Show login_howto to the human. "

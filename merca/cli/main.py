@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import typer
 
-from merca.cli import cmd_cart, cmd_catalog, cmd_ops, cmd_orders, cmd_policy
+from merca.cli import cmd_cart, cmd_catalog, cmd_ops, cmd_order, cmd_orders, cmd_policy
 
 __all__ = ("app", "cli")
 
@@ -23,6 +23,7 @@ cmd_ops.register(app)
 cmd_orders.register(app)
 cmd_catalog.register(app)
 app.add_typer(cmd_cart.cart_app, name="cart")
+app.add_typer(cmd_order.order_app, name="order")
 cmd_policy.register(app)
 
 

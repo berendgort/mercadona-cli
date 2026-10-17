@@ -23,6 +23,8 @@ merca search "leche" --json
 
 `merca cart fill --file lines.txt --yes` sets many quantities in one request. Each line is `product_id qty`.
 
+`merca order show <id>` prints the lines of a confirmed order and its change deadline. `merca order edit <id> --file lines.txt` prints the diff; add `--yes` to save it. Same `product_id qty` file, absolute quantities, `0` removes, unlisted lines stay. It refuses after `changes_until`, refuses to empty the order, and cannot add new products.
+
 `merca checkout` loads the live cart when you are logged in, runs preflight, prints the slot, and stops. Pay in the Mercadona app.
 
 ## For AI agents

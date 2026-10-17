@@ -1,0 +1,53 @@
+{
+  "id": "00000000-0000-4000-8000-000000000001",
+  "lines": [
+    {
+      "id": 9000000001,
+      "product_id": "35343",
+      "quantity": 1.0,
+      "sources": [
+        "+CO"
+      ],
+      "product": {
+        "id": "35343",
+        "display_name": "Salsa de tomate Zero sin azúcares añadidos Hacendado",
+        "slug": "ketchup-zero-azucares-anadidos-hacendado-bote",
+        "price_instructions": {
+          "unit_price": "1.60"
+        }
+      }
+    },
+    {
+      "id": 9000000002,
+      "product_id": "3819",
+      "quantity": 8.0,
+      "sources": [
+        "+CO"
+      ],
+      "product": {
+        "id": "3819",
+        "display_name": "Plátano de Canarias IGP",
+        "slug": "platano-canarias-igp-pieza",
+        "price_instructions": {
+          "unit_price": "0.43"
+        }
+      }
+    },
+    {
+      "id": 9000000003,
+      "product_id": "82765",
+      "quantity": 8.0,
+      "sources": [
+        "+CO"
+      ],
+      "product": {
+        "id": "82765",
+        "display_name": "Palitos de pan con pipas Anitin",
+        "slug": "palitos-pan-con-pipas-anitin-pack-2",
+        "price_instructions": {
+          "unit_price": "1.32"
+        }
+      }
+    }
+  ]
+}

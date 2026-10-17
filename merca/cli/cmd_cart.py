@@ -8,6 +8,7 @@ from typing import Any
 import typer
 
 from merca.basket.cart import fetch_cart, public_cart, put_lines
+from merca.basket.fill import parse_fill
 from merca.cli.catch import run_cmd
 from merca.core.access import require_profile, require_session
 from merca.core.exceptions import MercaValidationError
@@ -51,21 +52,6 @@ def _add(
     run_cmd(_run, as_json=json_out)
 
 
-def _parse_fill(text: str) -> list[tuple[str, int]]:
-    parsed: list[tuple[str, int]] = []
-    for raw in text.splitlines():
-        row = raw.split("#", 1)[0].strip()
-        if not row:
-            continue
-        parts = row.split()
-        if len(parts) != 2 or not parts[1].isdigit():
-            raise MercaValidationError(f"expected 'product_id qty', got {raw!r}")
-        parsed.append((parts[0], int(parts[1])))
-    if not parsed:
-        raise MercaValidationError("fill file has no lines")
-    return parsed
-
-
 @cart_app.command("fill")
 def _fill(
     src: str = typer.Option(..., "--file", help="Lines of 'product_id qty'. # comments allowed."),
@@ -81,7 +67,7 @@ def _fill(
         if not path.is_file():
             raise MercaValidationError(f"fill file not found: {src}")
         profile = require_profile()
-        lines = _parse_fill(path.read_text(encoding="utf-8"))
+        lines = parse_fill(path.read_text(encoding="utf-8"))
         cart = put_lines(require_session(), profile.warehouse, lines)
         return public_cart(cart)
 

@@ -48,6 +48,26 @@ The CLI keeps `id`, `status_ui`, `start_date`, `end_date`, `products_count`, and
 
 Header `Accept: application/pdf`. A PDF body starts with `%PDF`. 404 is `not_found`. The CLI writes the file and returns the path and byte count. It does not print the PDF.
 
+## Order edit
+
+Captured from the tienda web bundle and one live edit, October 2026. A confirmed order can change until `changes_until`.
+
+`GET https://tienda.mercadona.es/api/customers/{uuid}/orders/{id}/?lang=es&wh={warehouse}`
+
+The CLI keeps `status_ui` and `changes_until` only. Fixture: `fixtures/order_detail.json` (synthetic).
+
+`GET https://tienda.mercadona.es/api/customers/{uuid}/orders/{id}/cart/?lang=es&wh={warehouse}`
+
+Returns `{"id": <cart uuid>, "lines": [{"id", "product_id", "quantity", "sources", "product"}]}`. Fixture: `fixtures/order_cart.json` (public products, fake ids).
+
+`PUT` the same path saves the order. The body is the **full** line list, not a delta. A line missing from the list is removed:
+
+```json
+{"cart": {"id": "<cart uuid>", "lines": [{"id": 9000000001, "quantity": 2, "product_id": "3819", "sources": ["+CO"]}]}}
+```
+
+`version` is sent only when the GET returned one. Lock: `merca/basket/order_edit.py` `build_order_put_body`. The CLI refuses to remove every line (the web app treats that as cancel) and refuses products that are not already in the order (adding a line has not been captured).
+
 ## Not called
 
-Order confirmation, payment, Bizum, and postal-code change are not implemented. Checkout stops in process. Checkout may GET the cart so preflight can run. It does not POST an order.
+Placing a new order, `DELETE /orders/{id}/` (cancel), payment, Bizum, and postal-code change are not implemented. Checkout stops in process. Checkout may GET the cart so preflight can run. It does not POST an order.
