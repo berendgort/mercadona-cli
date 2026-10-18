@@ -1,4 +1,4 @@
-"""Checkout stops before payment. This module does not call HTTP."""
+"""Offline checkout plan (fixture or no session). This module does not call HTTP."""
 
 from __future__ import annotations
 
@@ -12,7 +12,9 @@ from merca.policy.slot import check_delivery_slot
 
 __all__ = ("PAY_IN_APP", "checkout_plan")
 
-PAY_IN_APP = "Pay in the Mercadona app. This CLI never confirms an order and never pays."
+PAY_IN_APP = (
+    "Stopped before the order. Book it with checkout --confirm --yes, or in the Mercadona app."
+)
 
 
 def checkout_plan(

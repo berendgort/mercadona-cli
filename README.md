@@ -1,6 +1,6 @@
 # merca
 
-Mercadona cart CLI for humans and agents. Search the public catalog, check the delivery window, change the basket when `--yes` is set, and stop before payment.
+Mercadona CLI for humans and agents. Search the catalog, fill the basket, book a delivery slot, edit the booked order before its deadline, and learn from past deliveries. Every write needs `--yes`.
 
 ```bash
 pipx install 'mercadona-cli[mcp] @ git+https://github.com/berendgort/mercadona-cli.git'
@@ -21,11 +21,15 @@ merca search "leche" --json
 
 `merca orders` lists recent tickets (id, status, slot, totals). `merca receipt <id> --out ticket.pdf` saves the PDF. Neither prints an address, a phone, or a card.
 
-`merca cart fill --file lines.txt --yes` sets many quantities in one request. Each line is `product_id qty`.
+`merca history --orders 16` learns from what was actually packed in your delivered orders: how many orders each product was in, quantity per week, and how many days between buys. Delivered orders are cached under `~/.config/merca/cache/`.
 
-`merca order show <id>` prints the lines of a confirmed order and its change deadline. `merca order edit <id> --file lines.txt` prints the diff; add `--yes` to save it. Same `product_id qty` file, absolute quantities, `0` removes, unlisted lines stay. It refuses after `changes_until`, refuses to empty the order, and cannot add new products.
+`merca cart fill --file lines.txt --yes` sets quantities (`product_id qty`, `0` removes). `--replace` makes the cart exactly the file. `merca cart clear --yes` empties it. Every write is re-read; a write that did not stick is an error.
 
-`merca checkout` loads the live cart when you are logged in, runs preflight, prints the slot, and stops. Pay in the Mercadona app.
+`merca slots` lists delivery slots in local time. `merca checkout --day LUN,MAR,MIE --label 11:00-18:00` runs preflight and shows the slot it would book. Add `--confirm --yes` to place the order with the account's saved payment method. It refuses when another future order is already booked, and it never adds or changes a card. If the bank wants 3-D Secure, the result says `needs_authentication` and you finish in the app.
+
+`merca order show <id>`: for a confirmed order, the lines and the change deadline; for a delivered one, what was packed and any shortages. `merca order edit <id> --file lines.txt` prints the diff; `--yes` saves it. Absolute quantities, `0` removes, a new id is added, unlisted lines stay. It refuses after `changes_until` and refuses to empty the order.
+
+The loop this enables: book the slot early, then trim or top up the order before its deadline, and let `history` say what you really eat.
 
 ## For AI agents
 
@@ -33,8 +37,8 @@ merca search "leche" --json
 2. Pass `--json` on every command. Read `ok`, `error_type`, `retryable`.
 3. `ambiguous` includes `candidates`. Ask for an id or pass one.
 4. `auth` includes `human_fix`. Ask the human to run `merca login`. Do not invent a token.
-5. `cart add` and `cart remove` without `--yes` return `validation_error` and do not call the API.
-6. There is no pay command. Do not add one.
+5. Writes without `--yes` return `validation_error` and do not call the API.
+6. `checkout --confirm --yes` is the only way an order is placed. Nothing cancels an order or touches a card.
 
 ## Quality gate
 

@@ -44,9 +44,7 @@ def run_preflight(cart: Cart, profile: Profile) -> Preflight:
     spend = line_spend(cart)
     count = len(cart.lines)
     if count < profile.item_min or count > profile.item_max:
-        errors.append(
-            f"Item count {count} is outside {profile.item_min}..{profile.item_max}"
-        )
+        errors.append(f"Item count {count} is outside {profile.item_min}..{profile.item_max}")
     if spend < profile.spend_min or spend > profile.spend_max:
         errors.append(
             f"Spend {spend:.2f} is outside {profile.spend_min:.2f}..{profile.spend_max:.2f}"

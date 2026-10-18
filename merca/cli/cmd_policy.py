@@ -1,4 +1,4 @@
-"""Slot check, basket preflight, and checkout that stops before pay."""
+"""Slot rule check and basket preflight. No writes."""
 
 from __future__ import annotations
 
@@ -13,16 +13,15 @@ from merca.basket.parse import parse_cart
 from merca.cli.catch import run_cmd
 from merca.core.access import require_profile, require_session
 from merca.core.exceptions import MercaValidationError
-from merca.core.store import load_profile, load_session
+from merca.core.store import load_profile
 from merca.models.profile import Profile
-from merca.policy.checkout import checkout_plan
 from merca.policy.preflight import run_preflight
 from merca.policy.slot import check_delivery_slot
 
-__all__ = ("register",)
+__all__ = ("load_fixture", "register")
 
 
-def _load_fixture(fixture: str) -> Any:
+def load_fixture(fixture: str) -> Any:
     path = Path(fixture)
     if not path.is_file():
         raise MercaValidationError(f"fixture not found: {fixture}")
@@ -52,7 +51,7 @@ def _preflight(
 ) -> None:
     def _run() -> dict[str, Any]:
         if fixture:
-            cart = _load_fixture(fixture)
+            cart = load_fixture(fixture)
         else:
             profile = require_profile()
             cart = fetch_cart(require_session(), profile.warehouse)
@@ -64,27 +63,6 @@ def _preflight(
     run_cmd(_run, as_json=json_out)
 
 
-def _checkout(
-    day: str = typer.Option(..., "--day"),
-    label: str = typer.Option(..., "--label"),
-    fixture: str | None = typer.Option(None, "--fixture"),
-    json_out: bool = typer.Option(False, "--json"),
-) -> None:
-    def _run() -> dict[str, Any]:
-        profile = load_profile()
-        if fixture:
-            cart = _load_fixture(fixture)
-        else:
-            session = load_session()
-            cart = None
-            if session is not None and profile is not None and profile.warehouse:
-                cart = fetch_cart(session, profile.warehouse)
-        return checkout_plan(day, label, cart=cart, profile=profile)
-
-    run_cmd(_run, as_json=json_out)
-
-
 def register(app: typer.Typer) -> None:
     app.command("slot")(_slot)
     app.command("preflight")(_preflight)
-    app.command("checkout")(_checkout)

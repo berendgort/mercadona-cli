@@ -1,0 +1,47 @@
+{
+  "next_page": null,
+  "results": [
+    {
+      "ordered_quantity": 1.0,
+      "prepared_quantity": 1.0,
+      "preparation_result": "complete",
+      "total_prepared_price": "4.98",
+      "product_id": "9995",
+      "original_price_instructions": {
+        "unit_price": "4.80"
+      },
+      "product": {
+        "id": "9995",
+        "display_name": "Solomillo de pavo"
+      }
+    },
+    {
+      "ordered_quantity": 1.0,
+      "prepared_quantity": 1.0,
+      "preparation_result": "complete",
+      "total_prepared_price": "5.14",
+      "product_id": "9995",
+      "original_price_instructions": {
+        "unit_price": "4.80"
+      },
+      "product": {
+        "id": "9995",
+        "display_name": "Solomillo de pavo"
+      }
+    },
+    {
+      "ordered_quantity": 1.0,
+      "prepared_quantity": 0.0,
+      "preparation_result": "not_prepared",
+      "total_prepared_price": "0.00",
+      "product_id": "3527",
+      "original_price_instructions": {
+        "unit_price": "1.82"
+      },
+      "product": {
+        "id": "3527",
+        "display_name": "Calabaza cacahuete cortada a trozos"
+      }
+    }
+  ]
+}

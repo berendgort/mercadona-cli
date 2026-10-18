@@ -8,6 +8,7 @@ __all__ = (
     "DELIVERY_WINDOW_MAX",
     "DELIVERY_WINDOW_MIN",
     "check_delivery_slot",
+    "normalize_day",
     "parse_slot_time_range",
 )
 
@@ -35,7 +36,7 @@ _DAYS = {
 _ALLOWED = frozenset({"LUN", "MAR", "MIE"})
 
 
-def _norm_day(day: str) -> str:
+def normalize_day(day: str) -> str:
     text = day.strip().upper().replace("É", "E").replace("Á", "A")
     return _DAYS.get(text, text)
 
@@ -49,7 +50,7 @@ def parse_slot_time_range(slot_label: str) -> tuple[str, str]:
 
 def check_delivery_slot(slot_day: str, slot_label: str) -> tuple[bool, list[str]]:
     errors: list[str] = []
-    day = _norm_day(slot_day)
+    day = normalize_day(slot_day)
     if day == "VIE":
         errors.append(f"Forbidden delivery day '{slot_day}' (never Friday).")
     elif day not in _ALLOWED:
@@ -60,9 +61,7 @@ def check_delivery_slot(slot_day: str, slot_label: str) -> tuple[bool, list[str]
         errors.append(str(exc))
         return False, errors
     if start_time < DELIVERY_WINDOW_MIN:
-        errors.append(
-            f"Time window start {start_time} is earlier than {DELIVERY_WINDOW_MIN}."
-        )
+        errors.append(f"Time window start {start_time} is earlier than {DELIVERY_WINDOW_MIN}.")
     if end_time > DELIVERY_WINDOW_MAX:
         errors.append(f"Time window end {end_time} is later than {DELIVERY_WINDOW_MAX}.")
     return (not errors, errors)

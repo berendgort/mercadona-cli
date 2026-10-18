@@ -1,29 +1,35 @@
-"""FastMCP tools. Does not import the CLI package."""
+"""FastMCP tools. Same use cases as the CLI, via merca.service. Does not import the CLI."""
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from datetime import date
 from typing import Any
 
-from merca.basket.cart import fetch_cart, public_cart, put_lines
-from merca.basket.orders import list_orders
+from merca.basket.cart import fetch_cart, public_cart, put_lines, replace_cart
+from merca.basket.fill import parse_fill
 from merca.catalog.search import get_product, search_products
 from merca.core.access import require_profile, require_session
 from merca.core.envelope import error_payload, success_payload
 from merca.core.exceptions import MercaValidationError
 from merca.core.instruct import instruct_recipe
-from merca.core.store import load_profile, load_session
-from merca.models.profile import Profile
-from merca.policy.checkout import checkout_plan
 from merca.policy.slot import check_delivery_slot
+from merca.service import checkout as checkout_service
+from merca.service import orders as order_service
 
 __all__ = ("build_server",)
 
 
-def _wrap(fn: Any) -> dict[str, Any]:
+def _wrap(fn: Callable[[], Any]) -> dict[str, Any]:
     try:
         return success_payload(fn())
     except Exception as exc:  # noqa: BLE001
         return error_payload(exc)
+
+
+def _need_yes(yes: bool) -> None:
+    if not yes:
+        raise MercaValidationError("Refusing to write without yes=true")
 
 
 def build_server() -> Any:
@@ -62,34 +68,59 @@ def build_server() -> Any:
         return _wrap(_run)
 
     @mcp.tool()
-    def checkout(day: str, label: str) -> dict[str, Any]:
-        def _run() -> dict[str, Any]:
-            profile = load_profile() or Profile()
-            session = load_session()
-            cart = None
-            if session is not None and profile.warehouse:
-                cart = fetch_cart(session, profile.warehouse)
-            return checkout_plan(day, label, cart=cart, profile=profile)
+    def slots() -> dict[str, Any]:
+        return _wrap(checkout_service.slots)
 
-        return _wrap(_run)
+    @mcp.tool()
+    def checkout(
+        days: str = "LUN,MAR,MIE",
+        label: str = "11:00-18:00",
+        earliest: str = "",
+        latest: str = "",
+        confirm: bool = False,
+        yes: bool = False,
+    ) -> dict[str, Any]:
+        """Preflight and pick a slot. Places the order only with confirm=true and yes=true."""
+        return _wrap(
+            lambda: checkout_service.checkout(
+                [d.strip() for d in days.split(",") if d.strip()],
+                label,
+                earliest=date.fromisoformat(earliest) if earliest else None,
+                latest=date.fromisoformat(latest) if latest else None,
+                confirm=confirm,
+                yes=yes,
+            )
+        )
 
     @mcp.tool()
     def orders(limit: int = 10) -> dict[str, Any]:
+        return _wrap(lambda: order_service.recent_orders(limit))
+
+    @mcp.tool()
+    def order_show(order_id: str) -> dict[str, Any]:
+        return _wrap(lambda: order_service.order_show(order_id))
+
+    @mcp.tool()
+    def order_edit(order_id: str, lines: str, yes: bool = False) -> dict[str, Any]:
+        """lines: 'product_id qty' per row, 0 removes. Dry run unless yes=true."""
+        return _wrap(lambda: order_service.order_edit(order_id, parse_fill(lines), yes=yes))
+
+    @mcp.tool()
+    def history(orders: int = 16) -> dict[str, Any]:
+        return _wrap(lambda: order_service.history(orders))
+
+    @mcp.tool()
+    def cart_show() -> dict[str, Any]:
         def _run() -> dict[str, Any]:
-            if limit < 1 or limit > 48:
-                raise MercaValidationError("limit must be 1..48")
             profile = require_profile()
-            rows = list_orders(require_session(), profile.warehouse)[:limit]
-            dumped = [row.model_dump(mode="json") for row in rows]
-            return {"orders": dumped, "count": len(dumped)}
+            return public_cart(fetch_cart(require_session(), profile.warehouse))
 
         return _wrap(_run)
 
     @mcp.tool()
     def cart_add(product_id: str, qty: int = 1, yes: bool = False) -> dict[str, Any]:
         def _run() -> dict[str, Any]:
-            if not yes:
-                raise MercaValidationError("Refusing to change the cart without yes=true")
+            _need_yes(yes)
             profile = require_profile()
             cart = put_lines(require_session(), profile.warehouse, [(product_id, qty)])
             return public_cart(cart)
@@ -97,10 +128,18 @@ def build_server() -> Any:
         return _wrap(_run)
 
     @mcp.tool()
-    def cart_show() -> dict[str, Any]:
+    def cart_fill(lines: str, replace: bool = False, yes: bool = False) -> dict[str, Any]:
+        """lines: 'product_id qty' per row. replace=true makes the cart exactly this list."""
+
         def _run() -> dict[str, Any]:
+            _need_yes(yes)
             profile = require_profile()
-            return public_cart(fetch_cart(require_session(), profile.warehouse))
+            session = require_session()
+            rows = parse_fill(lines)
+            if replace:
+                wanted: list[tuple[str, int | float]] = [(p, q) for p, q in rows if q > 0]
+                return public_cart(replace_cart(session, profile.warehouse, wanted))
+            return public_cart(put_lines(session, profile.warehouse, rows))
 
         return _wrap(_run)
 

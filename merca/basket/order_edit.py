@@ -6,28 +6,31 @@ The web app saves an edited order with one PUT of the full line list to
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import datetime, timezone
 from typing import Any
 
-from merca.core.exceptions import MercaParseError, MercaUnsupportedError, MercaValidationError
+from merca.core.exceptions import MercaNotFoundError, MercaParseError, MercaValidationError
 from merca.http.client import TIENDA, HttpClient
 from merca.models.order import OrderCart, OrderLine
+from merca.models.product import Product
 from merca.models.profile import Session
 
 __all__ = (
+    "SOURCE_SEARCH",
     "EditWindow",
     "build_order_put_body",
     "fetch_edit_window",
     "fetch_order_cart",
-    "order_diff",
     "parse_edit_window",
     "parse_order_cart",
     "plan_order_edit",
-    "public_order_cart",
     "put_order_cart",
 )
 
 EditWindow = tuple[str, datetime]
+# Line source code the web app sends for a product added from search.
+SOURCE_SEARCH = "+SA"
 
 
 def _order_url(customer_id: str, order_id: str) -> str:
@@ -118,8 +121,12 @@ def plan_order_edit(
     *,
     window: EditWindow,
     now: datetime | None = None,
+    new_products: Mapping[str, Product] | None = None,
 ) -> OrderCart:
-    """Apply absolute quantities. 0 removes a line. Unlisted lines stay as they are."""
+    """Apply absolute quantities. 0 removes a line. Unlisted lines stay as they are.
+
+    A product not yet in the order is appended when new_products holds its catalog row.
+    """
     status, until = window
     if status != "confirmed":
         raise MercaValidationError(f"order status is {status!r}, only confirmed orders can change")
@@ -132,11 +139,10 @@ def plan_order_edit(
             raise MercaValidationError(f"product {product_id} listed twice")
         targets[product_id] = wanted
     known = {line.product_id for line in cart.lines}
-    unknown = sorted(set(targets) - known)
+    catalog = new_products or {}
+    unknown = sorted(pid for pid in set(targets) - known if pid not in catalog)
     if unknown:
-        raise MercaUnsupportedError(
-            f"not in this order: {', '.join(unknown)}. Adding new products is not captured yet"
-        )
+        raise MercaNotFoundError(f"not in this order and not looked up: {', '.join(unknown)}")
     kept: list[OrderLine] = []
     for line in cart.lines:
         target = targets.get(line.product_id)
@@ -144,6 +150,20 @@ def plan_order_edit(
             kept.append(line)
         elif target > 0:
             kept.append(line.model_copy(update={"quantity": float(target)}))
+    for product_id, target in targets.items():
+        if product_id in known or target <= 0:
+            continue
+        product = catalog[product_id]
+        kept.append(
+            OrderLine(
+                line_id=0,
+                product_id=product.id,
+                quantity=float(target),
+                display_name=product.display_name,
+                unit_price=product.unit_price,
+                sources=(SOURCE_SEARCH,),
+            )
+        )
     if not kept:
         raise MercaValidationError("Refusing to remove every line. That cancels the order")
     return cart.model_copy(update={"lines": tuple(kept)})
@@ -156,14 +176,14 @@ def build_order_put_body(cart: OrderCart) -> dict[str, Any]:
         quantity: float | int = line.quantity
         if float(quantity).is_integer():
             quantity = int(quantity)
-        lines.append(
-            {
-                "id": line.line_id,
-                "quantity": quantity,
-                "product_id": line.product_id,
-                "sources": list(line.sources),
-            }
-        )
+        row: dict[str, Any] = {
+            "quantity": quantity,
+            "product_id": line.product_id,
+            "sources": list(line.sources),
+        }
+        if line.line_id:
+            row = {"id": line.line_id, **row}
+        lines.append(row)
     inner: dict[str, Any] = {"id": cart.cart_id, "lines": lines}
     if cart.version:
         inner["version"] = cart.version
@@ -180,41 +200,3 @@ def put_order_cart(
         params={"lang": "es", "wh": warehouse},
         body=build_order_put_body(cart),
     )
-
-
-def _spend(cart: OrderCart) -> float:
-    return round(sum(line.unit_price * line.quantity for line in cart.lines), 2)
-
-
-def public_order_cart(cart: OrderCart) -> dict[str, Any]:
-    rows = [
-        {
-            "product_id": line.product_id,
-            "quantity": line.quantity,
-            "display_name": line.display_name,
-            "unit_price": line.unit_price,
-        }
-        for line in cart.lines
-    ]
-    return {"order_id": cart.order_id, "lines": rows, "count": len(rows), "spend": _spend(cart)}
-
-
-def order_diff(before: OrderCart, after: OrderCart) -> dict[str, Any]:
-    new = {line.product_id: line.quantity for line in after.lines}
-    changed = [
-        {
-            "product_id": line.product_id,
-            "display_name": line.display_name,
-            "from": line.quantity,
-            "to": new.get(line.product_id, 0.0),
-        }
-        for line in before.lines
-        if new.get(line.product_id, 0.0) != line.quantity
-    ]
-    return {
-        "changed": changed,
-        "lines_before": len(before.lines),
-        "lines_after": len(after.lines),
-        "spend_before": _spend(before),
-        "spend_after": _spend(after),
-    }

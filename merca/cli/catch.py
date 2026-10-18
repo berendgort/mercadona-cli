@@ -9,6 +9,7 @@ from typing import Any
 import typer
 
 from merca.cli.console import console
+from merca.cli.render import render
 from merca.core.envelope import error_payload, success_payload
 
 __all__ = ("emit", "run_cmd")
@@ -19,7 +20,7 @@ def emit(payload: dict[str, Any], *, as_json: bool) -> None:
         print(json.dumps(payload, ensure_ascii=False))
         return
     if payload.get("ok"):
-        console.print(payload.get("data"))
+        render(payload.get("data"))
         return
     console.print(f"[red]{payload.get('error')}[/red]")
 

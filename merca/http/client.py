@@ -76,6 +76,8 @@ def _decode(status: int, text: str) -> dict[str, Any]:
         raise MercaRateLimitError("Rate limited", status_code=429)
     if status >= 400:
         raise MercaHTTPError(f"HTTP {status}", status_code=status)
+    if not text.strip():
+        return {}
     try:
         data = json.loads(text)
     except json.JSONDecodeError as exc:
@@ -121,9 +123,7 @@ class HttpClient:
             if wait > 0:
                 time.sleep(wait)
         try:
-            status, text = self._transport(
-                method, url, params=params, body=body, headers=headers
-            )
+            status, text = self._transport(method, url, params=params, body=body, headers=headers)
         except MercaHTTPError:
             raise
         except Exception:

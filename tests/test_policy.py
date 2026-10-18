@@ -63,7 +63,7 @@ def test_blacklist_qty_and_short_cart_fail() -> None:
 def test_checkout_stops_and_rejects_friday() -> None:
     plan = checkout_plan("LUN", "De 11:00 a 13:00")
     assert plan["stopped_before_pay"] is True
-    assert "never pays" in plan["human_fix"]
+    assert "--confirm --yes" in plan["human_fix"]
     try:
         checkout_plan("FRI", "De 11:00 a 13:00")
     except Exception as exc:  # noqa: BLE001

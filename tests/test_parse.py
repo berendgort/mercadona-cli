@@ -55,19 +55,26 @@ def test_cart_fixture_spend_comes_from_lines() -> None:
     assert cart.lines[0].unit_price > 0
 
 
-def test_put_body_is_the_captured_shape() -> None:
-    body = build_put_body([("10381", 1), ("10379", 0)])
+def test_put_body_is_a_full_replacement() -> None:
+    body = build_put_body([("10381", 1), ("10379", 2.0)], cart_id="c1", version=4)
     assert body == {
+        "id": "c1",
+        "version": 4,
         "lines": [
             {"product_id": "10381", "quantity": 1},
-            {"product_id": "10379", "quantity": 0},
-        ]
+            {"product_id": "10379", "quantity": 2},
+        ],
     }
+    assert build_put_body([], cart_id="c1", version=4)["lines"] == []
 
 
-def test_put_body_rejects_bad_quantity() -> None:
+def test_put_body_rejects_bad_quantity_and_missing_id() -> None:
     with pytest.raises(MercaValidationError):
-        build_put_body([("10381", -1)])
+        build_put_body([("10381", -1)], cart_id="c1", version=1)
+    with pytest.raises(MercaValidationError):
+        build_put_body([("10381", 0)], cart_id="c1", version=1)
+    with pytest.raises(MercaValidationError):
+        build_put_body([("10381", 1)], cart_id="", version=1)
 
 
 def test_missing_price_is_a_parse_error() -> None:

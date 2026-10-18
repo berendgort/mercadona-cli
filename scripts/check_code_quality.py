@@ -20,6 +20,7 @@ LAYER: dict[str, int] = {
     "merca.catalog": 40,
     "merca.basket": 40,
     "merca.policy": 40,
+    "merca.service": 45,
     "merca.cli": 50,
     "merca.mcp": 50,
 }

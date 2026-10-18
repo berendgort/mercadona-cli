@@ -1,4 +1,4 @@
-"""Order history and PDF receipts. No pay, no address, no phone."""
+"""Order history, learned purchase stats, and PDF receipts. No pay, no address, no phone."""
 
 from __future__ import annotations
 
@@ -7,10 +7,10 @@ from typing import Any
 
 import typer
 
-from merca.basket.orders import list_orders, save_receipt
+from merca.basket.orders import save_receipt
 from merca.cli.catch import run_cmd
 from merca.core.access import require_profile, require_session
-from merca.core.exceptions import MercaValidationError
+from merca.service.orders import history, recent_orders
 
 __all__ = ("register",)
 
@@ -20,16 +20,15 @@ def _orders(
     json_out: bool = typer.Option(False, "--json"),
 ) -> None:
     """Recent orders: id, status, slot, totals. Nothing else."""
+    run_cmd(lambda: recent_orders(limit), as_json=json_out)
 
-    def _run() -> dict[str, Any]:
-        if limit < 1 or limit > 48:
-            raise MercaValidationError("limit must be 1..48")
-        profile = require_profile()
-        rows = list_orders(require_session(), profile.warehouse)
-        chosen = rows[:limit]
-        return {"orders": [row.model_dump(mode="json") for row in chosen], "count": len(chosen)}
 
-    run_cmd(_run, as_json=json_out)
+def _history(
+    orders: int = typer.Option(16, "--orders", help="Most recent delivered orders to learn from."),
+    json_out: bool = typer.Option(False, "--json"),
+) -> None:
+    """Per-product purchase stats from delivered orders (what was packed, not ordered)."""
+    run_cmd(lambda: history(orders), as_json=json_out)
 
 
 def _receipt(
@@ -48,4 +47,5 @@ def _receipt(
 
 def register(app: typer.Typer) -> None:
     app.command("orders")(_orders)
+    app.command("history")(_history)
     app.command("receipt")(_receipt)

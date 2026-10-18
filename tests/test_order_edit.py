@@ -11,15 +11,15 @@ import pytest
 
 from merca.basket.order_edit import (
     build_order_put_body,
-    order_diff,
     parse_edit_window,
     parse_order_cart,
     plan_order_edit,
     put_order_cart,
 )
-from merca.core.exceptions import MercaUnsupportedError, MercaValidationError
+from merca.core.exceptions import MercaNotFoundError, MercaValidationError
 from merca.http.client import HttpClient
 from merca.models.profile import Session
+from merca.policy.order_view import order_diff
 
 ROOT = Path(__file__).resolve().parents[1]
 BEFORE = datetime(2026, 10, 17, 12, 0, tzinfo=timezone.utc)
@@ -86,7 +86,7 @@ def test_refuses_removing_every_line() -> None:
 
 
 def test_refuses_new_product_and_duplicates() -> None:
-    with pytest.raises(MercaUnsupportedError):
+    with pytest.raises(MercaNotFoundError):
         plan_order_edit(_cart(), [("99999", 1)], window=_window(), now=BEFORE)
     with pytest.raises(MercaValidationError, match="twice"):
         plan_order_edit(_cart(), [("3819", 1), ("3819", 2)], window=_window(), now=BEFORE)
@@ -112,3 +112,19 @@ def test_order_id_must_be_digits() -> None:
     bad = _cart().model_copy(update={"order_id": "../1"})
     with pytest.raises(MercaValidationError):
         put_order_cart(Session(token="t", uuid="u"), "3087", bad, client=HttpClient(token="t"))
+
+
+def test_new_product_is_appended_without_line_id() -> None:
+    from merca.models.product import Product
+
+    milk = Product(id="10933", display_name="Leche", slug="leche", unit_price=1.15, share_url="")
+    after = plan_order_edit(
+        _cart(), [("10933", 3)], window=_window(), now=BEFORE, new_products={"10933": milk}
+    )
+    body = build_order_put_body(after)
+    added = body["cart"]["lines"][-1]
+    assert added == {"quantity": 3, "product_id": "10933", "sources": ["+SA"]}
+    assert all("id" in line for line in body["cart"]["lines"][:-1])
+    assert order_diff(_cart(), after)["changed"] == [
+        {"product_id": "10933", "display_name": "Leche", "from": 0.0, "to": 3.0}
+    ]

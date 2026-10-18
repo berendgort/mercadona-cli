@@ -1,4 +1,4 @@
-"""Mercadona cart CLI. Never confirms or pays an order."""
+"""Mercadona CLI. Places an order only with --confirm --yes; never cancels, never touches a card."""
 
 from __future__ import annotations
 

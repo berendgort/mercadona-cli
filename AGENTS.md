@@ -1,14 +1,15 @@
 # AGENTS.md
 
-`merca` looks up Mercadona products, checks a delivery slot, edits the cart, and edits the lines of a confirmed order. The human pays.
+`merca` looks up Mercadona products, fills the cart, books a slot (`checkout --confirm --yes`), edits a booked order, and learns from delivered orders.
 
 Read `docs/objective_function.md`, `docs/code_quality.md`, `docs/data_engineering_standards.md`, and `docs/WIRE.md` before editing.
 
-- Downward layers. 250 lines. Frozen Pydantic. `mypy --strict`. No token in output.
+- Downward layers (`service` at 45 holds use cases shared by CLI and MCP). 250 lines. Frozen Pydantic. `mypy --strict`. No token in output.
 - One writer per fact. Spend is the sum of line prices. PUT body comes from `build_put_body`.
 - No fixture, no new wire field.
 - `--yes` or the cart and the order do not change.
-- Do not place a new order, cancel an order, or call payment. `order edit` is the only order write.
+- Order writes: `checkout --confirm --yes` (place) and `order edit --yes`. Never cancel, never DELETE an order, never add or change a card.
+- Every cart write is a full replacement with id + version, then re-read. A stale version returns 200 and changes nothing.
 - Do not commit `session.json`.
 
 ```bash

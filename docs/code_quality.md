@@ -13,6 +13,7 @@ Imports point downward. A module may import the same rank or a lower rank.
 | 20 | `merca/http` | curl_cffi. No CLI imports. |
 | 30 | `merca/core` | Envelope, paths, the profile store, instruct. |
 | 40 | `merca/catalog`, `merca/basket`, `merca/policy` | Search, cart, slot, preflight. |
+| 45 | `merca/service` | Use cases the CLI and MCP share: order show/edit, history, slots, checkout. |
 | 50 | `merca/cli`, `merca/mcp` | Typer and FastMCP. They do not import each other. |
 
 ## File and function rules

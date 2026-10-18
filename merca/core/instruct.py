@@ -10,11 +10,14 @@ __all__ = ("instruct_recipe",)
 def instruct_recipe() -> dict[str, Any]:
     return {
         "name": "merca",
-        "objective": "Put the right products in the Mercadona cart. The human pays in the app.",
+        "objective": (
+            "The right products arrive in a slot the household can receive. "
+            "Book the slot early, then trim the order before its deadline."
+        ),
         "never": [
-            "confirm a new order",
+            "place an order without --confirm --yes",
             "cancel or delete an order",
-            "pay",
+            "add or change a payment card",
             "print the session token",
             "send a password",
         ],
@@ -47,22 +50,30 @@ def instruct_recipe() -> dict[str, Any]:
             "merca search leche --json",
             "merca product <id> --json",
             "merca orders --limit 8 --json",
-            "merca receipt <order_id> --out ticket.pdf --json",
+            "merca history --orders 16 --json  # per-product cadence from delivered orders",
             "merca order show <order_id> --json",
             "merca order edit <order_id> --file lines.txt --json  # dry run",
             "merca order edit <order_id> --file lines.txt --yes --json",
             "merca cart --json",
             "merca cart add <id> --qty 1 --yes --json",
-            "merca cart fill --file lines.txt --yes --json",
-            "merca slot --day LUN --label 'De 11:00 a 13:00' --json",
-            "merca preflight --json",
-            "merca checkout --day LUN --label 'De 11:00 a 13:00' --json",
+            "merca cart fill --file lines.txt --replace --yes --json",
+            "merca cart clear --yes --json",
+            "merca slots --json",
+            "merca checkout --day LUN,MAR,MIE --label 11:00-18:00 --json  # dry run",
+            "merca checkout --day LUN,MAR,MIE --label 11:00-18:00 --confirm --yes --json",
         ],
-        "writes": "cart add, cart remove, and order edit do nothing unless --yes is present.",
+        "writes": (
+            "cart add/remove/fill/clear, order edit, and checkout --confirm do nothing "
+            "unless --yes is present. Every cart write is re-read and verified."
+        ),
         "order_edit": (
-            "Changes quantities on lines of a confirmed order before changes_until. "
-            "File rows are 'product_id qty'; 0 removes. Unlisted lines stay. "
-            "Adding new products and removing every line are refused. No pay."
+            "Sets quantities on a confirmed order before changes_until. Rows are "
+            "'product_id qty'; 0 removes; an id not in the order is added. Unlisted lines "
+            "stay. Removing every line is refused (that would cancel)."
+        ),
+        "history": (
+            "Learns from what was packed in delivered orders: orders, share, qty_per_week, "
+            "gap_days, last_day per product. Delivered orders are cached locally."
         ),
         "ambiguous": "search returns error_type ambiguous and candidates. Pick an id.",
         "auth": (
@@ -70,8 +81,11 @@ def instruct_recipe() -> dict[str, Any]:
             "Do not invent a token. Do not ask for Cookies."
         ),
         "checkout": (
-            "Loads the live cart when a session exists, runs preflight, prints the slot, "
-            "and stops. There is no pay command. --fixture skips the live cart."
+            "Runs preflight on the live cart and picks the earliest open slot on the given "
+            "days inside the local window (--earliest/--latest bound the date). Without "
+            "--confirm it stops. With --confirm --yes it places the order with the saved "
+            "payment method; refuses if another future order is already booked. "
+            "needs_authentication means the human finishes 3-D Secure in the app."
         ),
         "orders": (
             "orders returns id, status, slot, and totals only. "

@@ -9,11 +9,14 @@
     "currency"
   ],
   "example": {
+    "id": "00000000-0000-4000-8000-000000000002",
+    "version": 3,
     "lines": [
       {
         "product_id": "10381",
         "quantity": 1
       }
     ]
-  }
+  },
+  "note": "Full replacement: id + current version + every line. Partial PUT with quantity 0 is ignored by the server; a stale version returns 200 and changes nothing."
 }

@@ -4,7 +4,15 @@ from __future__ import annotations
 
 import typer
 
-from merca.cli import cmd_cart, cmd_catalog, cmd_ops, cmd_order, cmd_orders, cmd_policy
+from merca.cli import (
+    cmd_cart,
+    cmd_catalog,
+    cmd_checkout,
+    cmd_ops,
+    cmd_order,
+    cmd_orders,
+    cmd_policy,
+)
 
 __all__ = ("app", "cli")
 
@@ -12,7 +20,7 @@ app = typer.Typer(
     name="merca",
     help=(
         "Mercadona cart for humans and agents. "
-        "Search, check the Monday window, stop before pay. "
+        "Search, fill the cart, book a slot, edit the order, learn from history. "
         "Recipe: merca instruct --json."
     ),
     no_args_is_help=True,
@@ -25,6 +33,7 @@ cmd_catalog.register(app)
 app.add_typer(cmd_cart.cart_app, name="cart")
 app.add_typer(cmd_order.order_app, name="order")
 cmd_policy.register(app)
+cmd_checkout.register(app)
 
 
 def cli() -> None:
