@@ -88,7 +88,7 @@ def test_pick_slot_respects_window_days_lead_and_dates() -> None:
         pick_slot(slots, days=days, label="11:00-18:00", now=now, latest=date(2026, 10, 19)) is None
     )
     with pytest.raises(MercaValidationError):
-        pick_slot(slots, days=["VIE"], label="11:00-18:00", now=now)
+        pick_slot(slots, days=["DOM"], label="11:00-18:00", now=now)
 
 
 def test_apply_changes_sets_absolute_and_zero_removes() -> None:

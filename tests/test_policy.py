@@ -27,9 +27,10 @@ def test_exact_window_edges_are_allowed() -> None:
     assert ok, errors
 
 
-def test_friday_and_late_slots_fail() -> None:
-    assert check_delivery_slot("VIE", "De 11:00 a 13:00")[0] is False
-    assert check_delivery_slot("viernes", "De 11:00 a 13:00")[0] is False
+def test_friday_passes_other_days_and_late_slots_fail() -> None:
+    assert check_delivery_slot("VIE", "De 11:00 a 13:00")[0] is True
+    assert check_delivery_slot("viernes", "De 11:00 a 13:00")[0] is True
+    assert check_delivery_slot("JUE", "De 11:00 a 13:00")[0] is False
     assert check_delivery_slot("LUN", "De 18:00 a 20:00")[0] is False
     assert check_delivery_slot("LUN", "De 07:00 a 09:00")[0] is False
     assert check_delivery_slot("LUN", "De 10:59 a 13:00")[0] is False
@@ -60,13 +61,14 @@ def test_blacklist_qty_and_short_cart_fail() -> None:
     assert "Item count" in text
 
 
-def test_checkout_stops_and_rejects_friday() -> None:
+def test_checkout_stops_allows_friday_rejects_thursday() -> None:
     plan = checkout_plan("LUN", "De 11:00 a 13:00")
     assert plan["stopped_before_pay"] is True
     assert "--confirm --yes" in plan["human_fix"]
+    assert checkout_plan("FRI", "De 11:00 a 13:00")["stopped_before_pay"] is True
     try:
-        checkout_plan("FRI", "De 11:00 a 13:00")
+        checkout_plan("JUE", "De 11:00 a 13:00")
     except Exception as exc:  # noqa: BLE001
         assert "Friday" in str(exc)
     else:
-        raise AssertionError("friday checkout should fail")
+        raise AssertionError("thursday checkout should fail")

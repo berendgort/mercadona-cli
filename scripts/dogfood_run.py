@@ -55,7 +55,7 @@ def main() -> int:
         ("instruct", ["instruct", "--json"], "ok"),
         ("doctor", ["doctor", "--json"], "ok"),
         ("setup", ["setup", "--cp", "08860", "--wh", "3087", "--json"], "ok"),
-        ("slot_friday", _slot("VIE", "De 11:00 a 13:00"), "validation_error"),
+        ("slot_friday", _slot("VIE", "De 11:00 a 13:00"), "ok"),
         ("slot_monday", _slot("LUN", "De 11:00 a 13:00"), "ok"),
         ("slot_late", _slot("LUN", "De 18:00 a 20:00"), "validation_error"),
         ("cart_add_no_yes", ["cart", "add", "10381", "--qty", "1", "--json"], "validation_error"),

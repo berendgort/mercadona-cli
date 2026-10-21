@@ -1,4 +1,4 @@
-"""Delivery window. Monday through Wednesday, 11:00 to 18:00. Never Friday."""
+"""Delivery window. Monday, Tuesday, Wednesday or Friday, 11:00 to 18:00."""
 
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ _DAYS = {
     "FRI": "VIE",
     "FRIDAY": "VIE",
 }
-_ALLOWED = frozenset({"LUN", "MAR", "MIE"})
+_ALLOWED = frozenset({"LUN", "MAR", "MIE", "VIE"})
 
 
 def normalize_day(day: str) -> str:
@@ -51,10 +51,8 @@ def parse_slot_time_range(slot_label: str) -> tuple[str, str]:
 def check_delivery_slot(slot_day: str, slot_label: str) -> tuple[bool, list[str]]:
     errors: list[str] = []
     day = normalize_day(slot_day)
-    if day == "VIE":
-        errors.append(f"Forbidden delivery day '{slot_day}' (never Friday).")
-    elif day not in _ALLOWED:
-        errors.append(f"Delivery day '{slot_day}' is outside Monday, Tuesday, Wednesday.")
+    if day not in _ALLOWED:
+        errors.append(f"Delivery day '{slot_day}' is outside Monday, Tuesday, Wednesday, Friday.")
     try:
         start_time, end_time = parse_slot_time_range(slot_label)
     except ValueError as exc:

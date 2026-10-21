@@ -81,7 +81,7 @@ def test_cart_without_session_is_auth(tmp_path: Path) -> None:
 
 
 def test_slot_and_checkout_stop_before_pay(tmp_path: Path) -> None:
-    bad = _json(_run(tmp_path, "slot", "--day", "VIE", "--label", "De 11:00 a 13:00", "--json"))
+    bad = _json(_run(tmp_path, "slot", "--day", "JUE", "--label", "De 11:00 a 13:00", "--json"))
     assert bad["error_type"] == "validation_error"
     good = _json(_run(tmp_path, "slot", "--day", "LUN", "--label", "De 11:00 a 13:00", "--json"))
     assert good["ok"] is True
@@ -104,8 +104,8 @@ def test_slot_and_checkout_stop_before_pay(tmp_path: Path) -> None:
     friday = _json(
         _run(tmp_path, "checkout", "--day", "FRI", "--label", "De 11:00 a 13:00", "--json")
     )
-    assert friday["error_type"] == "validation_error"
-    assert "stopped_before_pay" not in friday
+    assert friday["ok"] is True
+    assert friday["data"]["stopped_before_pay"] is True
 
 
 def test_preflight_fixture(tmp_path: Path) -> None:
